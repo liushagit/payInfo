@@ -1,0 +1,23 @@
+import com.payinfo.net.bootstrap.*;
+import com.payinfo.net.rmi.RemoteConfig;
+
+
+// loading database resource
+DataBaseProperties database = new DataBaseProperties();
+database.url="jdbc:mysql://127.0.0.1:3306/smallpay_res?useUnicode=true&characterEncoding=UTF-8";
+database.userName="root";
+database.password="admin";
+
+
+
+// loading bootstrap configuration
+BootstrapProperties bootstrap = new BootstrapProperties();
+bootstrap.protocol="remote"; // http or socket
+bootstrap.port=9982;
+
+// build memcached
+CachedProperties cached = new CachedProperties();
+cached.memcachedUrl="127.0.0.1:11211";
+
+
+
