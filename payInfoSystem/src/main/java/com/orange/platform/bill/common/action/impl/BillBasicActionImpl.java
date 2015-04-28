@@ -7,6 +7,7 @@ import com.orange.platform.bill.common.action.BillBasicAction;
 import com.orange.platform.bill.common.domain.GameMatchInfo;
 import com.orange.platform.bill.common.domain.InitInfo;
 import com.orange.platform.bill.common.domain.PayInfo;
+import com.orange.platform.bill.common.domain.PingOrder;
 import com.orange.platform.bill.common.domain.SDKKey;
 import com.orange.platform.bill.common.domain.mm.MMInitInfo;
 import com.orange.platform.bill.data.Application;
@@ -52,5 +53,20 @@ public class BillBasicActionImpl extends Application implements BillBasicAction 
 	@Override
 	public GameMatchInfo queryGameConf(String appId, String propId) {
 		return billAO().queryGameConf(appId,propId);
+	}
+
+	@Override
+	public long queryMaxPingOrderId() {
+		return billAO().queryMaxPingOrderId();
+	}
+
+	@Override
+	public void addPingOrder(PingOrder order) {
+		billAO().addPingOrder(order);
+	}
+
+	@Override
+	public void updatePingOrder(long orderId, String orderStatus,int liveModel) {
+		billAO().updatePingOrder(orderId, orderStatus,liveModel);
 	}
 }

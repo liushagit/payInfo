@@ -3,20 +3,28 @@
  */
 package com.orange.platform.bill.view.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSONObject;
 import com.orange.platform.bill.view.ActionAware;
+import com.orange.platform.bill.view.service.PingService;
 import com.orange.platform.bill.view.utils.HttpTool;
 import com.orange.platform.bill.view.utils.ip.IPtest;
 import com.orange.platform.bill.common.domain.InitInfo;
 import com.orange.platform.bill.common.domain.PayInfo;
+import com.orange.platform.bill.common.domain.PingOrder;
 import com.orange.platform.bill.common.domain.SDKKey;
 import com.orange.platform.bill.common.domain.mm.MMInitInfo;
 import com.orange.platform.bill.common.utils.CommonTools;
 import com.payinfo.net.handler.HttpRequest;
 import com.payinfo.net.handler.HttpResponse;
 import com.payinfo.net.log.LoggerFactory;
+import com.pingplusplus.Pingpp;
+import com.pingplusplus.SmallChannel;
+import com.pingplusplus.model.Charge;
 
 /**
  * @author weimiplayer.com
@@ -170,6 +178,93 @@ public class MiServer extends ActionAware {
 		}
 	}
 	
+	
+	private static final String pingKey = "sk_test_O4WfTGjnrnTKPiXD8Sn5yv1K";
+	private static final String pingAppId = "app_Dev50SefX9C8P4OO";
+	
+	/**
+	 * ping++ 获取reqCharge
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	public void ping(HttpRequest request, HttpResponse response)
+			throws Exception {
+		String appName = request.getParam("appId");
+		String imsi = request.getParam("imsi");
+		String imei = request.getParam("imei");
+		String ext = request.getParam("ext");
+		String mobile = request.getParam("mobile");
+		String centerNO = request.getParam("smscenter");
+		String subject = request.getParam("propName");//购买道具名称
+		String body = request.getParam("propDescibe");//购买道具说明
+		
+		long order_no = PingService.getNextOrderId();//需要创建
+		
+		
+		int amount = Integer.parseInt(request.getParam("fee"));
+		amount *= 100;
+		String ip = getRealIP(request);
+		if (ip.equals("192.168.1.1") || ip.equals("192.168.1.172")) {
+			ip = request.getParam("ip");
+		}
+		
+		
+		PingOrder order = new PingOrder(); 
+		
+		String[] params = ext.split("\\@");
+		if (params.length == 3) {
+			String appId = params[0];
+			String channel = params[1];
+			String propId = params[2];
+
+			order.setAppId(appId);
+			order.setChannelId(channel);
+			order.setPropId(propId);
+		}
+		order.setExt(ext);
+		order.setFee(amount);
+		order.setImei(imei);
+		order.setImsi(imsi);
+		order.setIp(ip);
+		order.setMobile(mobile);
+		int mobileType = CommonTools.locateOperator(imsi);
+		order.setMobileType(mobileType);
+		order.setOrderId(""+order_no);
+		String channel = "";
+		try {
+			channel = SmallChannel.getValue(Integer.parseInt(request.getParam("payChannel")));	
+		} catch (Exception e) {
+		}
+		
+		order.setPayType(channel);
+		
+		String province = IPtest.getInstance().queryProvince(ip);
+		order.setProvince(province);
+		order.setOrderStatus(PingService.CREATED);
+		billAction.addPingOrder(order);
+		logger.info("用户访问IP=" + ip);
+		
+		Pingpp.apiKey = pingKey;
+		Map<String, Object> chargeParams = new HashMap<String, Object>();
+		chargeParams.put("order_no", order_no);
+		chargeParams.put("amount", amount);
+		Map<String, String> app = new HashMap<String, String>();
+		app.put("id", pingAppId);
+		chargeParams.put("app", app);
+		chargeParams.put("channel", channel);
+		chargeParams.put("currency", "cny");
+		chargeParams.put("client_ip", ip);
+		chargeParams.put("subject", subject);
+		chargeParams.put("body", body);
+
+		Charge c = Charge.create(chargeParams);
+		if (c != null) {
+			response.content(c.toString()).end();
+		}
+		response.content("").end();
+		
+	}
 	
 	/**
 	 * 付费统计

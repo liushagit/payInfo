@@ -10,6 +10,7 @@
     <module>payInfoServer</module>
     <module>payInfoSystem</module>
     <module>payInfoNet</module>
+    <module>pingSmall</module>
   </modules>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -81,6 +82,11 @@
 				<groupId>com.small</groupId>
 				<artifactId>payInfoNet</artifactId>
 				<version>${project.release.version}</version>
+			</dependency>
+			<dependency>
+			  <groupId>com.small</groupId>
+			  <artifactId>pingSmall</artifactId>
+			  <version>${project.release.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.small</groupId>

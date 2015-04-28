@@ -6,6 +6,7 @@ package com.orange.platform.bill.data.ao;
 import com.orange.platform.bill.common.domain.GameMatchInfo;
 import com.orange.platform.bill.common.domain.InitInfo;
 import com.orange.platform.bill.common.domain.PayInfo;
+import com.orange.platform.bill.common.domain.PingOrder;
 import com.orange.platform.bill.common.domain.SDKKey;
 import com.orange.platform.bill.common.domain.mm.MMInitInfo;
 import com.payinfo.net.cached.MemcachedResource;
@@ -19,6 +20,7 @@ public class BillBasicAO extends BaseAO {
 	public static final String PREFIX_SDKKey = "sdk_";
 	public static final String PREFIX_MMINITKEY = "mminitkey_";
 	public static final String PREFIX_GAMECONFKEY = "gameconfkey_";
+	public static final String PREFIX_PINGMAXID = "ping_id_";
 	
 	
 	public void addInitInfo(InitInfo info) {
@@ -84,7 +86,29 @@ public class BillBasicAO extends BaseAO {
 		return info;
 	}
 	
+	public long queryMaxPingOrderId(){
+//		String index = createKey(PREFIX_PINGMAXID,"");
+//		Object info =  MemcachedResource.get(index);
+//		if (info != null) return Long.parseLong(info.toString());
+		
+		long maxId = billDAO.queryMaxId();
+//		if (maxId > 0) MemcachedResource.save(index, maxId);
+		return maxId;
+	}
 	
+	public void addPingOrder(PingOrder order){
+		String index = createKey(PREFIX_PINGMAXID,order.getOrderId());
+		PingOrder info = (PingOrder) MemcachedResource.get(index);
+		if (info != null) return;
+
+		billDAO.addPingOrder(order);
+		MemcachedResource.save(index, order);
+		
+	}
+	
+	public void updatePingOrder(long orderId,String orderStatus,int liveModel){
+		billDAO.updatePingOrder(orderId, orderStatus,liveModel);
+	}
 	
 	private String createIndexKey(String key, String appId, String channel) {
 		StringBuilder index = new StringBuilder();

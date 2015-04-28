@@ -49,6 +49,7 @@ import com.orange.platform.bill.common.utils.DateUtils;
 import com.orange.platform.bill.common.utils.MD5Utils;
 import com.orange.platform.bill.common.utils.XMLUtils;
 import com.orange.platform.bill.view.ActionAware;
+import com.orange.platform.bill.view.service.PingService;
 import com.orange.platform.bill.view.utils.HttpTool;
 import com.orange.platform.bill.view.utils.URLUtil;
 import com.orange.platform.bill.view.utils.bjsf.AES;
@@ -56,6 +57,9 @@ import com.payinfo.net.exception.JuiceException;
 import com.payinfo.net.handler.HttpRequest;
 import com.payinfo.net.handler.HttpResponse;
 import com.payinfo.net.log.LoggerFactory;
+import com.pingplusplus.model.Charge;
+import com.pingplusplus.model.Notify;
+import com.pingplusplus.model.Refund;
 
 /**
  * 订单回调通知
@@ -409,6 +413,50 @@ public class MiFeedBack extends ActionAware {
 		response.content(res).end();
 	}
 	
+	
+	/***
+	 * ping++支付通知 http://127.0.0.1/lwpay/feeZM ping++异步通知支付成功
+	 */
+	public void feePing(HttpRequest request, HttpResponse response)
+			throws JuiceException {
+		String res = "fail";
+		// 读取异步通知数据
+		String notifyJson = request.body();
+
+		// 解析异步通知数据
+		Object o = Notify.parseNotify(notifyJson);
+
+		// 对异步通知做处理
+		if (o instanceof Charge) {
+			Charge charge = (Charge) o;
+			if (charge.getOrderNo() == null) {
+				res = "fail";
+			} else {
+				long orderId = Long.parseLong(charge.getOrderNo());
+				int liveMode = charge.getLivemode() ? 1 : 0;
+				billAction.updatePingOrder(orderId, PingService.FINISHED,liveMode);
+				// 处理成功返回success
+				res = "success";
+
+			}
+		}
+
+		if (o instanceof Refund) {
+			Refund refund = (Refund) o;
+
+			if (refund.getOrderNo() == null) {
+				res = "fail";
+			} else {
+				long orderId = Long.parseLong(refund.getOrderNo());
+				billAction.updatePingOrder(orderId, PingService.REFUND,1);
+				// 处理成功返回success
+				res = "success";
+
+			}
+		}
+
+		response.content(res).end();
+	}
 	
 	
 	

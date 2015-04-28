@@ -6,6 +6,7 @@ package com.orange.platform.bill.common.action;
 import com.orange.platform.bill.common.domain.GameMatchInfo;
 import com.orange.platform.bill.common.domain.InitInfo;
 import com.orange.platform.bill.common.domain.PayInfo;
+import com.orange.platform.bill.common.domain.PingOrder;
 import com.orange.platform.bill.common.domain.SDKKey;
 import com.orange.platform.bill.common.domain.mm.MMInitInfo;
 
@@ -28,4 +29,10 @@ public interface BillBasicAction {
 	MMInitInfo queryMmInitNetCode(String appId);
 	
 	GameMatchInfo queryGameConf(String appId, String propId);
+	
+	long queryMaxPingOrderId();
+	
+	void addPingOrder(PingOrder order);
+	
+	void updatePingOrder(long orderId,String orderStatus,int liveModel);
 }

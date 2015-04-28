@@ -42,5 +42,9 @@
 	  <groupId>org.apache.directory.studio</groupId>
 	  <artifactId>org.apache.commons.codec</artifactId>
 	</dependency>
+	<dependency>
+	  <groupId>com.small</groupId>
+	  <artifactId>pingSmall</artifactId>
+	</dependency>
   </dependencies>
 </project>

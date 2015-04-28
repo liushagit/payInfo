@@ -10,6 +10,7 @@ import com.orange.platform.bill.common.domain.CodeInfo;
 import com.orange.platform.bill.common.domain.GameMatchInfo;
 import com.orange.platform.bill.common.domain.InitInfo;
 import com.orange.platform.bill.common.domain.PayInfo;
+import com.orange.platform.bill.common.domain.PingOrder;
 import com.orange.platform.bill.common.domain.SDKKey;
 import com.orange.platform.bill.common.domain.mm.MMInitInfo;
 import com.payinfo.net.database.ConnectionResource;
@@ -138,6 +139,7 @@ public class BillBasicDAO extends ConnectionResource {
 		return queryForObject(sql.toString(), HANDLER_GAMECONFKEY_KEY, appId,propId);
 	}
 	
+	
 	//============================获取计费代码==================================
 	private static IJuiceDBHandler<CodeInfo> HANDLER_CODEINFO_KEY = new IJuiceDBHandler<CodeInfo>() {
 		@Override
@@ -159,5 +161,39 @@ public class BillBasicDAO extends ConnectionResource {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * from t_code_info where app_id=? and channel_id=? and prop_id=? and status=1");
 		return queryForObject(sql.toString(), HANDLER_CODEINFO_KEY, appId,channelId,propId);
+	}
+	
+	
+	private static IJuiceDBHandler<Long> HANDLER_PING_ORDERID = new IJuiceDBHandler<Long>() {
+		@Override
+		public Long handler(ResultSet rs) throws SQLException {
+			long maxId = rs.getLong("order_id");
+			return maxId;
+		}
+	};
+	
+	
+	public long queryMaxId(){
+		StringBuilder sql = new StringBuilder();
+		sql.append("select max(order_id) order_id from t_ping_order");
+		Long maxId = queryForObject(sql.toString(), HANDLER_PING_ORDERID);
+		return maxId == null ? 0: maxId;
+	}
+	
+	public void addPingOrder(PingOrder order){
+		StringBuilder sql = new StringBuilder();
+		sql.append("insert into t_ping_order(order_id,imei,imsi,");
+		sql.append("mobile,ext,fee,pay_type,app_id,channel_id,");
+		sql.append("prop_id,province,mobile_type,ip,create_time,update_time,order_status)");
+		sql.append(" values(?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),?)");
+		saveOrUpdate(sql.toString(), order.getOrderId(),order.getImei(),order.getImsi(),
+				order.getMobile(),order.getExt(),order.getFee(),order.getPayType(),order.getAppId(),order.getChannelId(),
+				order.getPropId(),order.getProvince(),order.getMobileType(),order.getIp(),order.getOrderStatus());
+	}
+	
+	public void updatePingOrder(long orderId,String orderStatus,int liveModel){
+		StringBuilder sql = new StringBuilder();
+		sql.append("update t_ping_order set order_status=?,live_model=?,update_time=now() where order_id=?");
+		saveOrUpdate(sql.toString(), orderStatus,liveModel,orderId);
 	}
 }
