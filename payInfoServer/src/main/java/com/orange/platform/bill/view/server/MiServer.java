@@ -179,7 +179,8 @@ public class MiServer extends ActionAware {
 	}
 	
 	
-	private static final String pingKey = "sk_test_O4WfTGjnrnTKPiXD8Sn5yv1K";
+	//private static final String pingKey = "sk_test_O4WfTGjnrnTKPiXD8Sn5yv1K";
+	private static final String pingKey = "sk_live_he4h4MmeeMwrLenl6EG3gboY";
 	private static final String pingAppId = "app_Dev50SefX9C8P4OO";
 	
 	/**
