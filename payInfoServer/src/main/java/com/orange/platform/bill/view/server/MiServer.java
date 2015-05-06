@@ -262,6 +262,8 @@ public class MiServer extends ActionAware {
 		Charge c = Charge.create(chargeParams);
 		if (c != null) {
 			response.content(c.toString()).end();
+			logger.info("msg:"+c.toString());
+			return;
 		}
 		response.content("").end();
 		
